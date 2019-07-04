@@ -76,7 +76,7 @@ class DexCallSiteId:
 class DexMethodHandle:
     def __init__(self):
         self.method_handle_type = None
-        self.unused          = None
+        self.unused             = None
         self.field_or_method_id = None
         self.unused
 
@@ -90,3 +90,115 @@ class DexClassData:
         self.instance_fields      = None
         self.direct_methods       = None
         self.virtual_methods      = None
+
+class DexEncodedField:
+    def __init__(self):
+        self.field_idx_diff       = None
+        self.access_flags         = None
+
+class DexEndcodedMethod:
+    def __init__(self):
+        self.method_idx_diff
+        self.access_flags
+        self.code_off
+
+class DexTypeList:
+    def __init__(self):
+        self.size 
+        self.list = []
+
+class DexTypeItem:
+    def __init__(self):
+        self.type_idx
+
+class DexCodeItem:
+    def __init__(self):
+        self.registers_size     = None
+        self.ins_size           = None
+        self.outs_size          = None
+        self.tries_size         = None
+        self.debug_info_off     = None
+        self.insns_size         = None
+        self.insns              = None
+        self.padding            = None
+        self.tries_size         = None
+        self.handlers           = None
+
+class DexTryItem:
+    def __init__(self):
+        self.start_addr         = None
+        self.insn_count         = None
+        self.handler_off        = None
+
+class DexEncodedCatchHandlerList:
+    def __init__(self):
+        self.size               = None
+        self.list               = []
+
+class DexEncodedCatchHandler:
+    def __init__(self):
+        self.size               = None
+        self.handlers           = []
+        self.catch_all_addr     = None
+    
+class DexEncodedTypeAddrPair:
+    def __init__(self):
+        self.type               = None
+        self.addr               = None
+
+        
+class DexDebugInfoItem:
+    def __init__(self):
+        self.line_start         = None
+        self.parameters_size    = None
+        self.parameter_names    = []
+
+class DexAnnotationDirectoryItem:
+    def __init__(self):
+        self.class_annotations_off      = None
+        self.fields_size                = None
+        self.annotated_methods_size     = None
+        self.annotated_parameters_size  = None
+
+class DexFieldAnnotation:
+    def __init__(self):
+        self.field_idx                  = None
+        self.annotations_off            = None
+
+class DexMethodAnnotation:
+    def __init__(self):
+        self.method_idx
+        self.annotations_off
+
+class DexParameterAnnotation:
+    def __init__(self):
+        self.method_idx
+        self.annotations_off
+
+class DexAnnotationSetRefList:
+    def __init__(self):
+        self.size                   = None 
+        self.list                   = []
+
+class DexAnnotationSetRefItem:
+    def __init__(self):
+        self.annotation_off         = None
+
+class DexAnnotationSetItem:
+    def __init__(self):
+        self.size                   = None
+        self.entries                = []
+
+class DexAnmnotationOffItem:
+    def __init__(self):
+        self.annotation_off         = None
+
+class DexAnnotationItem:
+    def __init__(self):
+        self.visibility             = None
+        self.annotation             = None
+
+
+class DexEncodedArrayItem:
+    def __init__(self):
+        self.value                  = None
