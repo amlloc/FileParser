@@ -60,24 +60,24 @@ class DexMethodId:
 
 class DexClassDef:
     def __init__(self):
-        self.class_idx       = None
-        self.access_flags    = None
-        self.superclass_idx  = None
-        self.interfaces_off  = None
-        self.source_file_idx = None
-        self.annotations_off = None
-        self.class_data_off  = None
-        self.static_values_off = None
+        self.class_idx           = None
+        self.access_flags        = None
+        self.superclass_idx      = None
+        self.interfaces_off      = None
+        self.source_file_idx     = None
+        self.annotations_off     = None
+        self.class_data_off      = None
+        self.static_values_off   = None
 
 class DexCallSiteId:
     def __init__(self):
-        self.call_site_off   = None
+        self.call_site_off       = None
 
 class DexMethodHandle:
     def __init__(self):
-        self.method_handle_type = None
-        self.unused             = None
-        self.field_or_method_id = None
+        self.method_handle_type  = None
+        self.unused              = None
+        self.field_or_method_id  = None
         self.unused
 
 class DexClassData:
@@ -98,18 +98,18 @@ class DexEncodedField:
 
 class DexEndcodedMethod:
     def __init__(self):
-        self.method_idx_diff
-        self.access_flags
-        self.code_off
+        self.method_idx_diff      = None
+        self.access_flags         = None
+        self.code_off             = None
 
 class DexTypeList:
     def __init__(self):
-        self.size 
-        self.list = []
+        self.size                 = None
+        self.list                 = []            
 
 class DexTypeItem:
     def __init__(self):
-        self.type_idx
+        self.type_idx             = None
 
 class DexCodeItem:
     def __init__(self):
@@ -166,19 +166,19 @@ class DexFieldAnnotation:
         self.annotations_off            = None
 
 class DexMethodAnnotation:
-    def __init__(self):
-        self.method_idx
-        self.annotations_off
+    def __init__(self): 
+        self.method_idx                 = None
+        self.annotations_off            = None
 
 class DexParameterAnnotation:
     def __init__(self):
-        self.method_idx
-        self.annotations_off
+        self.method_idx                 = None
+        self.annotations_off            = None
 
 class DexAnnotationSetRefList:
     def __init__(self):
-        self.size                   = None 
-        self.list                   = []
+        self.size  = None 
+        self.list  = []
 
 class DexAnnotationSetRefItem:
     def __init__(self):
