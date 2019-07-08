@@ -17,7 +17,6 @@ class Dexfile:
         self.DexHeader.file = f
         f.seek(0x0, 0)
         self.DexHeader.magic = binascii.b2a_hex(f.read(8))
-        print(self.DexHeader.magic)
 
 def main():
     dex = Dexfile()
