@@ -2,7 +2,7 @@
 #coding:utf-8
 import binascii
 import sys
-from DexItem import DexHeader
+from DexItem import *
 
 class Dexfile:
     def __init__(self):
@@ -10,7 +10,16 @@ class Dexfile:
         print("init dexfile")
         # self.filePath = filePath
         self.DexHeader = DexHeader()
+        self.DexStringIds        = []
+        self.DexTypeIds          = []
+        self.DexFieldIds         = []
+        self.DexMethodIds        = []
+        self.DexProtoIds         = []
+        self.DexClassDef         = []
+
         self.init_header("/home/user/classes.dex")
+        self.init_stringids()
+
 
     def init_header(self, filePath):
         f = open(filePath, "rb")
@@ -47,7 +56,12 @@ class Dexfile:
         self.DexHeader.proto_ids_off = binascii.b2a_hex(f.read(1))
         print(self.DexHeader.magic)
     
-    def 
+    def init_stringids(self):
+        string_ids_off = int(self.DexHeader.string_ids_off, 16)
+        string_ids_size =  int(self.DexHeader.string_ids_size, 16)
+
+        for i in range(string_ids_size):
+            self.DexHeader.f.seek(string_ids_off + i * 4, 0)
 
 def main():
     dex = Dexfile()
