@@ -67,33 +67,33 @@ class DexTypeId:
         self.descriptor_idx  = None
 
 class DexProtoId:
-    def __init__(self):
-        self.shorty_idx      = None
-        self.return_type_idx = None
-        self.parameters_off  = None
+    def __init__(self, shorty_idx, return_type_idx, parameters_off):
+        self.shorty_idx      = shorty_idx
+        self.return_type_idx = return_type_idx
+        self.parameters_off  = parameters_off
 
 class DexFieldId:
-    def __init__(self):
-        self.class_idx       = None
-        self.type_idx        = None
-        self.name_idx        = None
+    def __init__(self, class_idx, type_idx, name_idx):
+        self.class_idx       = class_idx
+        self.type_idx        = type_idx
+        self.name_idx        = name_idx
 
 class DexMethodId:
-    def __init__(self):
-        self.class_idx       = None
-        self.proto_idx       = None
-        self.name_idx        = None
+    def __init__(self, class_idx, proto_idx, name_idx):
+        self.class_idx       = class_idx
+        self.proto_idx       = proto_idx
+        self.name_idx        = name_idx
 
 class DexClassDef:
-    def __init__(self):
-        self.class_idx           = None
-        self.access_flags        = None
-        self.superclass_idx      = None
-        self.interfaces_off      = None
-        self.source_file_idx     = None
-        self.annotations_off     = None
-        self.class_data_off      = None
-        self.static_values_off   = None
+    def __init__(self, class_idx, access_flags, superclass_idx, interfaces_off, source_file_idx, annotations_off, class_data_off, static_values_off):
+        self.class_idx           = class_idx
+        self.access_flags        = access_flags
+        self.superclass_idx      = interfaces_off
+        self.interfaces_off      = interfaces_off
+        self.source_file_idx     = source_file_idx
+        self.annotations_off     = annotations_off
+        self.class_data_off      = class_data_off
+        self.static_values_off   = static_values_off
 
 class DexCallSiteId:
     def __init__(self):

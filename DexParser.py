@@ -15,7 +15,7 @@ class Dexfile:
         self.DexFieldIds         = []
         self.DexMethodIds        = []
         self.DexProtoIds         = []
-        self.DexClassDef         = []
+        self.DexClassDefs        = []
 
         self.init_header()
         self.init_stringids()
@@ -25,7 +25,6 @@ class Dexfile:
 
     def init_header(self):
 
-        
         f = open(self.filePath, "rb")
         self.DexHeader.f = f
         f.seek(0x0, 0)
@@ -147,8 +146,88 @@ class Dexfile:
         print("\n")
         print("[+]DexStringList")
         for i in range(len(self.DexStringIds)):
-            print("{index} : {string}".format(index = hex(i), string = self.DexStringIds[i]))
+            print("#{index} : {string}".format(index = hex(i), string = self.DexStringIds[i]))
 
+    def getTypeId(self, index):
+        return self.DexStringIds[self.DexTypeIds[index]]
+
+    def init_typeids(self):
+        type_ids_off = int(self.DexHeader.string_ids_off, 16)
+        type_ids_size = int(self.DexHeader.string_ids_size, 16)
+
+        for i in range(type_ids_size):
+            self.DexHeader.f.seek(type_ids_off + i * 4, 0)
+            type_id = int(bytes.fromhex(binascii.b2a_hex(self.DexHeader.f.read(4)[::-1]).hex()).decode(), 16)
+            self.DexTypeIds.append(type_id)
+
+    def print_types(self):
+        print("\n")
+        print("[+]DexTypeList")
+        for i in range(len(self.DexTypeIds)):
+            print("#{index} : {string}",format(index = hex(i), string = self.getTypeId(i)))
+        print("\n")
+        
+
+
+        
+    def init_field_ids(self):
+        field_off = int(self.DexHeader.field_ids_off, 16)
+        field_size = int(self.DexHeader.field_ids_size, 16)
+
+        for i in range(field_size):
+            self.DexHeader.f.seek(field_off + i * 8, 0)
+            class_idx = int(bytes.fromhex(binascii.b2a_hex(self.DexHeader.f.read(2)[::-1]).hex()).decode(), 16)
+            type_idx = int(bytes.fromhex(binascii.b2a_hex(self.DexHeader.f.read(2)[::-1]).hex()).decode(), 16)
+            name_idx = int(bytes.fromhex(binascii.b2a_hex(self.DexHeader.f.read(4)[::-1]).hex()).decode(), 16)
+
+            field_id = DexFieldId(class_idx, type_idx, name_idx)
+            self.DexFieldIds.append(field_id)
+
+
+    def init_method_ids(self):
+        method_off = int(self.DexHeader.method_ids_off, 16)
+        method_size = int(self.DexHeader.method_size, 16)
+
+        for i in range(method_size):
+            self.DexHeader.f.seek(method_off + i * 8, 0)
+            class_idx = int(bytes.fromhex(binascii.b2a_hex(self.DexHeader.f.read(2)[::-1]).hex()).decode(), 16)
+            proto_idx = int(bytes.fromhex(binascii.b2a_hex(self.DexHeader.f.read(2)[::-1]).hex()).decode(), 16)
+            name_idx = int(bytes.fromhex(binascii.b2a_hex(self.DexHeader.f.read(4)[::-1]).hex()).decode(), 16)
+
+            method_id = DexFieldId(class_idx, proto_idx, name_idx)
+            self.DexMethodIds.append(fiemethod_idld_id)
+
+    def init_proto_ids(self):
+        proto_ids_off = int(self.DexHeader.proto_ids_off, 16)
+        proto_ids_size = int(self.DexHeader.proto_ids_size, 16)
+
+        for i in range(proto_ids_size):
+            self.DexHeader.f.seek(proto_ids_off + i * 16, 0)
+            shorty_idx =  int(bytes.fromhex(binascii.b2a_hex(self.DexHeader.f.read(4)[::-1]).hex()).decode(), 16)
+            return_type_idx = int(bytes.fromhex(binascii.b2a_hex(self.DexHeader.f.read(4)[::-1]).hex()).decode(), 16)
+            parameters_off = int(bytes.fromhex(binascii.b2a_hex(self.DexHeader.f.read(4)[::-1]).hex()).decode(), 16)
+
+            proto_id_item = DexProtoId(shorty_idx, return_type_idx, parameters_off)
+            self.DexProtoIds.append(proto_id_item)
+
+    def init_class_ids(self):
+        class_ids_off = int(self.DexHeader.class_defs_off, 16)
+        class_ids_size = int(self.DexHeader.class_defs_size, 16)
+
+        for i in range(class_ids_size):
+            self.DexHeader.f.seek(class_ids_off + i * 32, 0)
+            class_idx = int(bytes.fromhex(binascii.b2a_hex(self.DexHeader.f.read(4)[::-1]).hex()).decode(), 16)
+            access_flags = int(bytes.fromhex(binascii.b2a_hex(self.DexHeader.f.read(4)[::-1]).hex()).decode(), 16)
+            superclass_idx = int(bytes.fromhex(binascii.b2a_hex(self.DexHeader.f.read(4)[::-1]).hex()).decode(), 16)
+            interfaces_off = int(bytes.fromhex(binascii.b2a_hex(self.DexHeader.f.read(4)[::-1]).hex()).decode(), 16)
+            source_file_idx = int(bytes.fromhex(binascii.b2a_hex(self.DexHeader.f.read(4)[::-1]).hex()).decode(), 16)
+            annotations_off = int(bytes.fromhex(binascii.b2a_hex(self.DexHeader.f.read(4)[::-1]).hex()).decode(), 16)
+            class_data_off = int(bytes.fromhex(binascii.b2a_hex(self.DexHeader.f.read(4)[::-1]).hex()).decode(), 16)
+            static_values_off = int(bytes.fromhex(binascii.b2a_hex(self.DexHeader.f.read(4)[::-1]).hex()).decode(), 16)
+
+            class_id_item = DexClassDefs(class_idx, access_flags, superclass_idx, interfaces_off, source_file_idx, annotations_off, class_data_off, , static_values_off)
+            self.DexClassDefs.append(class_id_item)
+            
 def main():
     dex = Dexfile("classes.dex")
     dex.print_header()
@@ -156,9 +235,3 @@ def main():
 
 if __name__ == '__main__':
     main()
-
-
-
-
-
-
