@@ -50,12 +50,17 @@ class DexHeader:
         self.data_size       = None
         self.data_off        = None
 
-class DexMap:
-    def __init__(self):
-        self.type            = None
-        self.unused          = None
+class DexMapItem:
+    def __init__(self, type, unused, size, offset):
+        self.type            = type
+        self.unused          = unused
+        self.size            = size
+        self.offset          = offset
+
+class DexMapList:
+    def __init__(self, size, list):
         self.size            = None
-        self.offset          = None
+        self.list            = list
 
 class DexStringData:
     def __init__(self):
@@ -63,8 +68,8 @@ class DexStringData:
         self.data            = None
 
 class DexTypeId:
-    def __init__(self):
-        self.descriptor_idx  = None
+    def __init__(self, descriptor_idx):
+        self.descriptor_idx  = descriptor_idx
 
 class DexProtoId:
     def __init__(self, shorty_idx, return_type_idx, parameters_off):
@@ -107,15 +112,41 @@ class DexMethodHandle:
         self.unused
 
 class DexClassData:
-    def __init__(self):
-        self.static_fields_size   = None
-        self.instance_fields_size = None
-        self.direct_method_size   = None
-        self.virtual_method_size  = None
-        self.static_field         = None
-        self.instance_fields      = None
-        self.direct_methods       = None
-        self.virtual_methods      = None
+    def __init__(self, header, static_field, instance_fields, direct_methods, virtual_methods):
+        self.header               = header
+        self.static_field         = static_field
+        self.instance_fields      = instance_fields
+        self.direct_methods       = direct_methods
+        self.virtual_methods      = virtual_methods
+
+class DexClassDataHeader:
+    def __init__(self, static_fields_size, instance_fields_size, direct_method_size, virtual_method_size):
+        self.static_fields_size   = static_fields_size
+        self.instance_fields_size = instance_fields_size
+        self.direct_method_size   = direct_method_size
+        self.virtual_method_size  = virtual_method_size
+
+class DexField:
+    def __init__(self, field_idx, access_flags):
+        self.field_idx            = field_idx
+        self.access_flags         = access_flags
+
+class DexMethod:
+    def __init__(self, method_idx, access_flags, code_off):
+        self.method_idx           = method_idx
+        self.access_flags         = access_flags
+        self.code_off             = code_off
+
+class DexCode:
+    def __init__(self, registers_size, ins_size, outs_size, tries_size, debug_info_off, insns_size, insns):
+        self.registers_size      = registers_size
+        self.ins_size            = ins_size
+        self.outs_size           = outs_size
+        self.tries_size          = tries_size
+        self.debug_info_off      = debug_info_off
+        self.insns_size          = insns_size
+        self.insns               = insns
+
 
 class DexEncodedField:
     def __init__(self):

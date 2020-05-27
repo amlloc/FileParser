@@ -16,9 +16,12 @@ class Dexfile:
         self.DexMethodIds        = []
         self.DexProtoIds         = []
         self.DexClassDefs        = []
+        self.dexMapList          = None
 
         self.init_header()
         self.init_stringids()
+        self.init_method_ids()
+
 
 
 
@@ -120,6 +123,23 @@ class Dexfile:
         print("[+] dataSize : {dataSize}".format(dataSize = self.DexHeader.dataSize))
         print("[+] dataOff : {dataOff}".format(dataOff = self.DexHeader.dataOff))
 
+    def init_map_list(self):
+        map_off = int(self.DexHeader.map_off, 16)
+        self.DexHeader.f.seek(map_off, 0)
+        map_size = int(bytes.fromhex(binascii.b2a_hex(self.DexHeader.f.read(4)[::-1]).hex()).decode(), 16)
+        self.dexMapList = DexMapList(map_size)
+        map_list = []
+        for i in range(map_size):
+            self.DexHeader.f.seek(map_off + i * 12 + 4， 0)
+            map_item_type = int(bytes.fromhex(binascii.b2a_hex(self.DexHeader.f.read(2)[::-1]).hex()).decode(), 16)
+            map_item_unused = int(bytes.fromhex(binascii.b2a_hex(self.DexHeader.f.read(2)[::-1]).hex()).decode(), 16)
+            map_item_size = int(bytes.fromhex.(binascii.b2a_hex(self.DexHeader.f.read(4)[::-1]).hex()).decode(), 16)
+            map_item_offset = int(bytes.fromhex.(binascii.b2a_hex(self.DexHeader.f.read(4)[::-1]).hex()).decode(), 16)
+
+            map_list.append(DexMapItem(map_item_type, map_item_unused, map_item_size, map_item_offset))
+        
+        self.dexMapList = DexMapList(map_size, map_list)
+
     def init_stringids(self):
         string_ids_off = int(self.DexHeader.string_ids_off, 16)
         string_ids_size =  int(self.DexHeader.string_ids_size, 16)
@@ -149,7 +169,7 @@ class Dexfile:
             print("#{index} : {string}".format(index = hex(i), string = self.DexStringIds[i]))
 
     def getTypeId(self, index):
-        return self.DexStringIds[self.DexTypeIds[index]]
+        return self.DexStringIds[self.DexTypeIds[index].descriptor_idx]
 
     def init_typeids(self):
         type_ids_off = int(self.DexHeader.string_ids_off, 16)
@@ -157,8 +177,9 @@ class Dexfile:
 
         for i in range(type_ids_size):
             self.DexHeader.f.seek(type_ids_off + i * 4, 0)
-            type_id = int(bytes.fromhex(binascii.b2a_hex(self.DexHeader.f.read(4)[::-1]).hex()).decode(), 16)
-            self.DexTypeIds.append(type_id)
+            descriptor_idx = int(bytes.fromhex(binascii.b2a_hex(self.DexHeader.f.read(4)[::-1]).hex()).decode(), 16)]
+            dex_type_id = DexTypeId(descriptor_idx)
+            self.DexTypeIds.append(dex_type_id)
 
     def print_types(self):
         print("\n")
@@ -210,7 +231,7 @@ class Dexfile:
             proto_id_item = DexProtoId(shorty_idx, return_type_idx, parameters_off)
             self.DexProtoIds.append(proto_id_item)
 
-    def init_class_ids(self):
+    def init_class_defs(self):
         class_ids_off = int(self.DexHeader.class_defs_off, 16)
         class_ids_size = int(self.DexHeader.class_defs_size, 16)
 
@@ -225,8 +246,31 @@ class Dexfile:
             class_data_off = int(bytes.fromhex(binascii.b2a_hex(self.DexHeader.f.read(4)[::-1]).hex()).decode(), 16)
             static_values_off = int(bytes.fromhex(binascii.b2a_hex(self.DexHeader.f.read(4)[::-1]).hex()).decode(), 16)
 
-            class_id_item = DexClassDefs(class_idx, access_flags, superclass_idx, interfaces_off, source_file_idx, annotations_off, class_data_off, , static_values_off)
+            class_id_item = DexClassDef(class_idx, access_flags, superclass_idx, interfaces_off, source_file_idx, annotations_off, class_data_off,  static_values_off)
             self.DexClassDefs.append(class_id_item)
+
+            if class_data_off == 0:
+                continue
+
+            # 获取DexClassData结构
+            ##########################
+            
+
+
+
+    
+
+        
+    
+
+
+
+
+
+
+            
+
+    
             
 def main():
     dex = Dexfile("classes.dex")
