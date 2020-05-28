@@ -254,6 +254,32 @@ class Dexfile:
 
             # 获取DexClassData结构
             ##########################
+            dexClassDataHeader = class_data_off
+            dexClassDataLength = 0
+    
+    def readUnsignedLeb128(self, hex_value):
+        byte_count = len(hex_value) / 2
+
+        index = 0
+        for i in range(byte_count):
+            v1 = int(hex_value[i * 2 : i * 2 + 2], 16)
+            if v1 > 0:
+                index = index
+                break
+        
+        result = 0
+        hex_value = hex_value[index * 2:]
+        byte_count = len(hex_value) / 2
+        for i in range(byte_count):
+            cur = int(hex_value[i * 2:i * 2 + 2], 16)
+            if cur > 0x7f:
+                result = result | ((cur & 0x7f) <<(7 * i))
+            else:
+                result = result | ((cur & 0x7f) << (7 * i))
+                break
+        
+        return result
+        
             
 
 
