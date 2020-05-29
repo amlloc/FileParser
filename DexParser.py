@@ -234,8 +234,10 @@ class Dexfile:
     def init_class_defs(self):
         class_ids_off = int(self.DexHeader.class_defs_off, 16)
         class_ids_size = int(self.DexHeader.class_defs_size, 16)
+        
 
         for i in range(class_ids_size):
+
             self.DexHeader.f.seek(class_ids_off + i * 32, 0)
             class_idx = int(bytes.fromhex(binascii.b2a_hex(self.DexHeader.f.read(4)[::-1]).hex()).decode(), 16)
             access_flags = int(bytes.fromhex(binascii.b2a_hex(self.DexHeader.f.read(4)[::-1]).hex()).decode(), 16)
@@ -255,7 +257,44 @@ class Dexfile:
             # 获取DexClassData结构
             ##########################
             dexClassDataHeader = class_data_off
-            dexClassDataLength = 0
+            dexClassDataHeaderLength = 0
+
+            #解析DexClassData结构体中的header成员
+            self.DexHeader.f.seek(class_data_off, 0)
+            
+            
+            dexClassDataHeader = []
+            for i in range(4):
+                cur_bytes_hex = binascii.b2a_hex(self.DexHeader.f.read(1)) 
+                dexClassDataHeaderLength +=1 #每读一个字节，长度+1
+                cur_bytes = int(cur_bytes_hex, 16)
+                value = cur_bytes_hex
+
+                while cur_bytes > 0x7f:
+                    cur_bytes_hex = binascii.b2a_hex(self.DexHeader.f.read(1)) 
+                    dexClassDataHeaderLength +=1    #每读一个字节，长度+1
+                    cur_bytes = int(cur_bytes_hex, 16)
+                    value += cur_bytes_hex
+                    
+                dexClassDataHeader.append(value)
+            
+            staticFieldsSize = self.readUnsignedLeb128(dexClassDataHeader[0])
+            instance_fields_size = self.readUnsignedLeb128(dexClassDataHeader[1])
+            direct_method_size  =  self.readUnsignedLeb128(dexClassDataHeader[2])
+            virtual_method_size = self.readUnsignedLeb128(dexClassDataHeader[3])
+
+            dexClassDataHeader = DexClassDataHeader(static_fields_size, instance_fields_size, direct_method_size, virtual_method_size)
+            
+
+
+
+                    
+
+
+
+            
+
+
     
     def readUnsignedLeb128(self, hex_value):
         byte_count = len(hex_value) / 2
