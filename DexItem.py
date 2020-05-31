@@ -100,6 +100,8 @@ class DexClassDef:
         self.class_data_off      = class_data_off
         self.static_values_off   = static_values_off
 
+        self.header              = None
+
 class DexCallSiteId:
     def __init__(self):
         self.call_site_off       = None
@@ -112,12 +114,12 @@ class DexMethodHandle:
         self.unused
 
 class DexClassData:
-    def __init__(self, header, static_field, instance_fields, direct_methods, virtual_methods):
-        self.header               = header
-        self.static_field         = static_field
-        self.instance_fields      = instance_fields
-        self.direct_methods       = direct_methods
-        self.virtual_methods      = virtual_methods
+    def __init__(self):
+        self.header               = None
+        self.static_fields        = []
+        self.instance_fields      = []
+        self.direct_methods       = []
+        self.virtual_methods      = []
 
 class DexClassDataHeader:
     def __init__(self, static_fields_size, instance_fields_size, direct_method_size, virtual_method_size):
@@ -126,16 +128,27 @@ class DexClassDataHeader:
         self.direct_method_size   = direct_method_size
         self.virtual_method_size  = virtual_method_size
 
+        self.offset               = 0
+        self.length               = 0
+
+
+
 class DexField:
     def __init__(self, field_idx, access_flags):
         self.field_idx            = field_idx
         self.access_flags         = access_flags
+
+        self.offset               = 0
+        self.length               = 0
 
 class DexMethod:
     def __init__(self, method_idx, access_flags, code_off):
         self.method_idx           = method_idx
         self.access_flags         = access_flags
         self.code_off             = code_off
+
+        self.offset = 0
+        self.length = 0
 
 class DexCode:
     def __init__(self, registers_size, ins_size, outs_size, tries_size, debug_info_off, insns_size, insns):

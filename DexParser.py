@@ -130,7 +130,7 @@ class Dexfile:
         self.dexMapList = DexMapList(map_size)
         map_list = []
         for i in range(map_size):
-            self.DexHeader.f.seek(map_off + i * 12 + 4， 0)
+            self.DexHeader.f.seek(map_off + i * 12 + 4, 0)
             map_item_type = int(bytes.fromhex(binascii.b2a_hex(self.DexHeader.f.read(2)[::-1]).hex()).decode(), 16)
             map_item_unused = int(bytes.fromhex(binascii.b2a_hex(self.DexHeader.f.read(2)[::-1]).hex()).decode(), 16)
             map_item_size = int(bytes.fromhex.(binascii.b2a_hex(self.DexHeader.f.read(4)[::-1]).hex()).decode(), 16)
@@ -235,9 +235,10 @@ class Dexfile:
         class_ids_off = int(self.DexHeader.class_defs_off, 16)
         class_ids_size = int(self.DexHeader.class_defs_size, 16)
         
+        
 
         for i in range(class_ids_size):
-
+            
             self.DexHeader.f.seek(class_ids_off + i * 32, 0)
             class_idx = int(bytes.fromhex(binascii.b2a_hex(self.DexHeader.f.read(4)[::-1]).hex()).decode(), 16)
             access_flags = int(bytes.fromhex(binascii.b2a_hex(self.DexHeader.f.read(4)[::-1]).hex()).decode(), 16)
@@ -248,21 +249,22 @@ class Dexfile:
             class_data_off = int(bytes.fromhex(binascii.b2a_hex(self.DexHeader.f.read(4)[::-1]).hex()).decode(), 16)
             static_values_off = int(bytes.fromhex(binascii.b2a_hex(self.DexHeader.f.read(4)[::-1]).hex()).decode(), 16)
 
-            class_id_item = DexClassDef(class_idx, access_flags, superclass_idx, interfaces_off, source_file_idx, annotations_off, class_data_off,  static_values_off)
-            self.DexClassDefs.append(class_id_item)
+            dexClassDefObj = DexClassDef(class_idx, access_flags, superclass_idx, interfaces_off, source_file_idx, annotations_off, class_data_off,  static_values_off)
+            self.DexClassDefs.append(dexClassDefObj)
 
             if class_data_off == 0:
                 continue
 
             # 获取DexClassData结构
             ##########################
+            dexClassData = DexClassData() 
+
+            #解析DexClassData结构体中的header成员
             dexClassDataHeader = class_data_off
             dexClassDataHeaderLength = 0
 
-            #解析DexClassData结构体中的header成员
             self.DexHeader.f.seek(class_data_off, 0)
-            
-            
+     
             dexClassDataHeader = []
             for i in range(4):
                 cur_bytes_hex = binascii.b2a_hex(self.DexHeader.f.read(1)) 
@@ -282,18 +284,145 @@ class Dexfile:
             instance_fields_size = self.readUnsignedLeb128(dexClassDataHeader[1])
             direct_method_size  =  self.readUnsignedLeb128(dexClassDataHeader[2])
             virtual_method_size = self.readUnsignedLeb128(dexClassDataHeader[3])
-
+ 
             dexClassDataHeader = DexClassDataHeader(static_fields_size, instance_fields_size, direct_method_size, virtual_method_size)
+            dexClassDataHeader.length = dexClassDataHeaderLength
+            dexClassDataHeader.offset = class_data_off
+            
+            dexClassData.header = dexClassDataHeader
+
+
             
 
+            # 解析DexClassData结构体的staticFields、instanceFields、directMethods 和 virtualMethods
+            offset = dexClassDataHeader.offset + dexClassDataHeader.length
+            # 解析DexField* staticFields 成员
+            """
+            struct DexField{
+                u4 fieldIdx;
+                u4 accessFlags;
+            }
+            """
 
+            for i in range(staticFieldsSize):
+                array = []
+                length = 0
+                for j in range(2):
+                    cur_bytes_hex = binascii.b2a_hex(self.DexHeader.f.read(i))
+                    length +=1
+                    value = readUnsignedLeb128(cur_bytes_hex)
+                    cur_bytes = int(cur_bytes_hex, 16)
 
+                    while cur_bytes > 0x7f:
+                        cur_bytes_hex = binascii.b2a_hex(self.DexHeader.f.read(1))
+                        length += 1
+                        
+                        cur_bytes = int(cur_bytes_hex, 16)
+                        value     = cur_bytes_hex
+
+                        while cur_bytes > 0x7f:
+                            cur_bytes_hex = binascii.b2a_hex(self.DexHeader.f.read(1))
+                            length += 1
+
+                            cur_bytes = int(cur_bytes_hex, 16)
+                            value += cur_bytes_hex
+                        
+                        array.append(value)
+
+                field_idx = readUnsignedLeb128(array[0])
+                access_flags = readUnsignedLeb128(array[1])
+
+                staticDexField = DexField(field_idx, access_flags)
+                staticDexField.offset = offset
+                staticDexField.length = length
+
+                dexClassData.static_fields.append(staticDexField)
+                offset += length            
+
+            # (2)解析DexField* instanceFields成员
+            for i in range(instance_fields_size):
+                array = []
+                length = 0
+                for j in range(2):
+                    cur_bytes_hex = binascii.b2a_hex(self.DexHeader.f.read(1))
+                    length += 1
                     
+                    cur_bytes = int(cur_bytes_hex)
+                    value += cur_bytes_hex
+                
+                while cur_bytes > 0x7f:
+                    cur_bytes_hex = binascii.b2a_hex(self.DexHeader.f.read(1))
+                    length += 1
+                    cur_bytes = int(cur_bytes_hex, 16)
+                    value += cur_bytes_hex
+                
+                array.append(value)
+                field_idx =readUnsignedLeb128(array[0])
+                access_flags = readUnsignedLeb128(array[1])
 
+                dexField = DexField(field_idx, access_flags)
+                dexField.offset = offset
+                dexField.length = length
 
+                dexClassData.instance_fields.append(staticDexField)
 
-            
+             # (3)解析DexMethod* directMethods成员
+            for i in range(direct_method_size):
+                array = []
+                length = 0
+                for j in range(2):
+                    cur_bytes_hex = binascii.b2a_hex(self.DexHeader.f.read(1))
+                    length += 1
+                    
+                    cur_bytes = int(cur_bytes_hex)
+                    value += cur_bytes_hex
+                
+                while cur_bytes > 0x7f:
+                    cur_bytes_hex = binascii.b2a_hex(self.DexHeader.f.read(1))
+                    length += 1
+                    cur_bytes = int(cur_bytes_hex, 16)
+                    value += cur_bytes_hex
+                
+                array.append(value)
+                method_idx =readUnsignedLeb128(array[0])
+                access_flags = readUnsignedLeb128(array[1])
+                codeOff = self.readUnsignedLeb128(array[2])
 
+                dexMethod = DexMethod(method_idx, access_flags, code_off)
+                dexMethod.offset = offset
+                dexMethod.length = length
+
+                dexClassData.direct_methods.append(dexMethod)
+                offset += length
+
+            # (4)解析DexMethod* virtualMethods成员
+            for i in range(direct_method_size):
+                array = []
+                length = 0
+                for j in range(2):
+                    cur_bytes_hex = binascii.b2a_hex(self.DexHeader.f.read(1))
+                    length += 1
+                    
+                    cur_bytes = int(cur_bytes_hex)
+                    value += cur_bytes_hex
+                
+                while cur_bytes > 0x7f:
+                    cur_bytes_hex = binascii.b2a_hex(self.DexHeader.f.read(1))
+                    length += 1
+                    cur_bytes = int(cur_bytes_hex, 16)
+                    value += cur_bytes_hex
+                
+                array.append(value)
+                method_idx =readUnsignedLeb128(array[0])
+                access_flags = readUnsignedLeb128(array[1])
+                codeOff = self.readUnsignedLeb128(array[2])
+
+                dexMethod = DexMethod(method_idx, access_flags, code_off)
+                dexMethod.offset = offset
+                dexMethod.length = length
+
+                dexClassData.virtualMethods.append(dexMethod)
+                offset += length
 
     
     def readUnsignedLeb128(self, hex_value):
