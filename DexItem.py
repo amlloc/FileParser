@@ -272,3 +272,4 @@ class DexAnnotationItem:
 class DexEncodedArrayItem:
     def __init__(self):
         self.value                  = None
+
