@@ -40,11 +40,11 @@ class Dexfile:
         self.dexHeader.signature = binascii.b2a_hex(f.read(20))
 
         f.seek(0x20, 0)
-        a = f.read(4)[::-1] # b'\x00u!\x90'
-        b = binascii.b2a_hex(a)  # b'00752190'
-        c = b.hex() #多余        '3030373532313930'
-        d = bytes.fromhex(c)  #多余  b'00752190'
-        e = d.decode('utf-8')  #'00752190'
+        # a = f.read(4)[::-1] # b'\x00u!\x90'
+        # b = binascii.b2a_hex(a)  # b'00752190'
+        # c = b.hex() #多余        '3030373532313930'
+        # d = bytes.fromhex(c)  #多余  b'00752190'
+        # e = d.decode('utf-8')  #'00752190'
         # self.dexHeader.file_size = int(bytes.fromhex(binascii.b2a_hex(f.read(4)[::-1]).hex()).decode('utf-8'),16)
         self.dexHeader.file_size = int(binascii.b2a_hex(f.read(4)[::-1]).decode('utf-8'),16)
 
