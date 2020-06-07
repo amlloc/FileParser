@@ -71,11 +71,23 @@ class DexTypeId:
     def __init__(self, descriptor_idx):
         self.descriptor_idx  = descriptor_idx
 
+
 class DexProtoId:
     def __init__(self, shorty_idx, return_type_idx, parameters_off):
         self.shorty_idx      = shorty_idx
         self.return_type_idx = return_type_idx
         self.parameters_off  = parameters_off
+        self.dexTypeList = None
+
+        self.offset  =  None
+        self.length  =  0
+
+
+    def toString(self, dexFile):
+        if self.dexTypeList:
+            return '%s%s' % (self.dexTypeList.toString(dexFile),  dexFile.getDexTypeId(self.return_type_idx))
+        else:
+            return '()%s' % dexFile.getDexTypeId(self.return_type_idx)
 
 class DexFieldId:
     def __init__(self, class_idx, type_idx, name_idx):
@@ -83,11 +95,19 @@ class DexFieldId:
         self.type_idx        = type_idx
         self.name_idx        = name_idx
 
+        self.offset = None
+        self.length = 8
+
 class DexMethodId:
     def __init__(self, class_idx, proto_idx, name_idx):
         self.class_idx       = class_idx
         self.proto_idx       = proto_idx
         self.name_idx        = name_idx
+
+        self.offset = None
+        self.length = 8
+
+        
 
 class DexClassDef:
     def __init__(self, class_idx, access_flags, superclass_idx, interfaces_off, source_file_idx, annotations_off, class_data_off, static_values_off):
@@ -100,7 +120,10 @@ class DexClassDef:
         self.class_data_off      = class_data_off
         self.static_values_off   = static_values_off
 
-        self.header              = None
+        self.dexClassData        = None
+
+        self.offset              = None
+        self.length              = 0
 
 class DexCallSiteId:
     def __init__(self):
@@ -150,15 +173,25 @@ class DexMethod:
         self.offset = 0
         self.length = 0
 
+        self.dexCode = DexCode()
+
 class DexCode:
-    def __init__(self, registers_size, ins_size, outs_size, tries_size, debug_info_off, insns_size, insns):
-        self.registers_size      = registers_size
-        self.ins_size            = ins_size
-        self.outs_size           = outs_size
-        self.tries_size          = tries_size
-        self.debug_info_off      = debug_info_off
-        self.insns_size          = insns_size
-        self.insns               = insns
+    def __init__(self):
+        self.registers_size      = None
+        self.ins_size            = None
+        self.outs_size           = None
+        self.tries_size          = None
+        self.debug_info_off      = None
+        self.insns_size          = None
+        self.insns               = None
+
+        self.offset              = None
+        self.length              = 0
+
+    def __str__(self):
+        return '[registersSize = %s, insSize = %s, outsSize = %s, triesSize = %s, debugInfoOff = %s, insnsSize = %s, insns = %s]' % \
+                (self.registers_size, self.ins_size, self.tries_size, self.tries_size, hex(self.debug_info_off), self.insns_size, self.insns)
+
 
 
 class DexEncodedField:
@@ -173,9 +206,18 @@ class DexEndcodedMethod:
         self.code_off             = None
 
 class DexTypeList:
+    
     def __init__(self):
         self.size                 = None
-        self.list                 = []            
+        self.list                 = []
+
+    def toString(self, dexFile):
+        parametersStr = ''
+        if self.size:
+            for idx in self.list:
+                parametersStr += dexFile.getDexTypeId(idx).decode() + ','
+        return '(%s)' % parametersStr
+      
 
 class DexTypeItem:
     def __init__(self):
